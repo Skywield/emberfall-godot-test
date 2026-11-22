@@ -111,7 +111,7 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":56709024,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":22565152,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -160,6 +160,7 @@ const engine = new Engine(GODOT_CONFIG);
 		}
 		setStatusMode('notice');
 		initializing = false;
+		window.efStarted = true; var l=document.getElementById('ef-load'); if(l) l.style.display='none';
 	}
 
 	const missing = Engine.getMissingFeatures({
@@ -204,6 +205,7 @@ const engine = new Engine(GODOT_CONFIG);
 				if (current > 0 && total > 0) {
 					statusProgress.value = current;
 					statusProgress.max = total;
+					if (window.efLoadMsg) window.efLoadMsg(current, total);
 				} else {
 					statusProgress.removeAttribute('value');
 					statusProgress.removeAttribute('max');
@@ -211,10 +213,41 @@ const engine = new Engine(GODOT_CONFIG);
 			},
 		}).then(() => {
 			setStatusMode('hidden');
+			window.efStarted = true;
 		}, displayFailureNotice);
 	}
 }());
 		</script>
-	</body>
+	
+<div id="ef-load" style="position:absolute;left:0;right:0;bottom:calc(10% + 28px);text-align:center;font:15px/1.4 system-ui,sans-serif;color:#f3d9b1;z-index:5;pointer-events:none;text-shadow:0 1px 2px #000">
+  <div style="font-size:22px;letter-spacing:.08em;color:#ffb35c;margin-bottom:6px">EMBERFALL</div>
+  <div id="ef-load-msg">Loading…</div>
+  <div id="ef-load-hint" style="font-size:12px;color:#c9a98a;max-width:520px;margin:6px auto 0"></div>
+</div>
+<script>
+(function () {
+  var msg = document.getElementById('ef-load-msg'), hint = document.getElementById('ef-load-hint'), box = document.getElementById('ef-load');
+  var t0 = performance.now(), last = t0, lastBytes = 0, downloaded = false;
+  window.efLoadMsg = function (cur, tot) {
+    if (cur !== lastBytes) { lastBytes = cur; last = performance.now(); }
+    var pct = Math.floor(cur * 100 / tot);
+    msg.textContent = 'Loading game data… ' + pct + '%  (' + (cur / 1048576).toFixed(1) + ' / ' + (tot / 1048576).toFixed(1) + ' MB)';
+    if (cur >= tot && !downloaded) { downloaded = true; last = performance.now(); msg.textContent = 'Starting engine…'; }
+  };
+  // Software-rendered WebGL (no GPU) is very slow: warn up front.
+  try {
+    var c = document.createElement('canvas');
+    var gl = c.getContext('webgl2', { failIfMajorPerformanceCaveat: true });
+    if (!gl && c.getContext('webgl2')) hint.textContent = 'Note: this browser is rendering WebGL2 without GPU acceleration, so startup may be slow.';
+  } catch (e) {}
+  var iv = setInterval(function () {
+    if (window.efStarted) { clearInterval(iv); box.style.display = 'none'; return; }
+    var idle = (performance.now() - last) / 1000, total = (performance.now() - t0) / 1000;
+    if (downloaded && idle > 20) hint.textContent = 'Still starting after ' + Math.round(total) + ' s. This browser may lack hardware-accelerated WebGL2 — try desktop Chrome, Edge or Firefox with hardware acceleration on.';
+    else if (!downloaded && idle > 15) hint.textContent = 'Download stalled for ' + Math.round(idle) + ' s — check the connection, or reload the page.';
+  }, 1000);
+})();
+</script>
+</body>
 </html>
 
