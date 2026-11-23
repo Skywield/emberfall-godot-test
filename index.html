@@ -111,7 +111,7 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":13654660,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":13662792,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -247,6 +247,7 @@ const engine = new Engine(GODOT_CONFIG);
     if (downloaded && idle > 20) hint.textContent = 'Still starting after ' + Math.round(total) + ' s. This browser may lack hardware-accelerated WebGL2 — try desktop Chrome, Edge or Firefox with hardware acceleration on.';
     else if (!downloaded && idle > 15) hint.textContent = 'Download stalled for ' + Math.round(idle) + ' s — check the connection, or reload the page.';
   }, 1000);
+window.efBuild="1.0.4 · build 2026.11.23b (Godot 4.7)";
 })();
 </script>
 </body>
